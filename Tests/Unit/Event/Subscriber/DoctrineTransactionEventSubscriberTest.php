@@ -2,11 +2,11 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Event\Subscriber;
 
-use PHPUnit\Framework\TestCase;
 use Doctrine\Common\Persistence\ObjectManager;
-use IDCI\Bundle\PaymentBundle\Event\TransactionEvent;
-use IDCI\Bundle\PaymentBundle\Event\Subscriber\DoctrineTransactionEventSubscriber;
 use IDCI\Bundle\PaymentBundle\Entity\Transaction;
+use IDCI\Bundle\PaymentBundle\Event\Subscriber\DoctrineTransactionEventSubscriber;
+use IDCI\Bundle\PaymentBundle\Event\TransactionEvent;
+use PHPUnit\Framework\TestCase;
 
 class DoctrineTransactionEventSubscriberTest extends TestCase
 {
@@ -36,6 +36,19 @@ class DoctrineTransactionEventSubscriberTest extends TestCase
             ->method('getTransaction')
             ->willReturn($transaction)
         ;
+    }
+
+    public function testGetSubscribedEvents()
+    {
+        $events = DoctrineTransactionEventSubscriber::getSubscribedEvents();
+
+        $this->assertEquals(array_keys($events), [
+            TransactionEvent::APPROVED,
+            TransactionEvent::CANCELED,
+            TransactionEvent::CREATED,
+            TransactionEvent::FAILED,
+            TransactionEvent::PENDING,
+        ]);
     }
 
     public function testSave()

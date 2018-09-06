@@ -12,13 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PayPlugPaymentGateway extends AbstractPaymentGateway
 {
-    public function initialize(
+    protected function createPayment(
         PaymentGatewayConfigurationInterface $paymentGatewayConfiguration,
         Transaction $transaction
-    ): array {
-        Payplug\Payplug::setSecretKey($paymentGatewayConfiguration->get('secret_key'));
-
-        $payment = Payplug\Payment::create([
+    ) {
+        return Payplug\Payment::create([
             'amount' => $transaction->getAmount(),
             'currency' => $transaction->getCurrencyCode(),
             'customer' => [
@@ -35,9 +33,16 @@ class PayPlugPaymentGateway extends AbstractPaymentGateway
                 'transaction_id' => $transaction->getId(),
             ],
         ]);
+    }
+
+    public function initialize(
+        PaymentGatewayConfigurationInterface $paymentGatewayConfiguration,
+        Transaction $transaction
+    ): array {
+        Payplug\Payplug::setSecretKey($paymentGatewayConfiguration->get('secret_key'));
 
         return [
-            'payment' => $payment,
+            'payment' => $this->createPayment($paymentGatewayConfiguration, $transaction),
         ];
     }
 

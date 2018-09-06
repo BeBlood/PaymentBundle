@@ -1,0 +1,6 @@
+DEBUG!NO!
+D_LOGO!/bundles/idcipayment/sips/logo/!
+F_CERTIFICATE!Tests/Fixtures/AtosSipsBinPaymentGatewayTest/param/sogenactif/certif!
+F_CTYPE!php!
+F_PARAM!Tests/Fixtures/AtosSipsBinPaymentGatewayTest/param/sogenactif/parmcom!
+F_DEFAULT!Tests/Fixtures/AtosSipsBinPaymentGatewayTest/param/sogenactif/parmcom.sogenactif!

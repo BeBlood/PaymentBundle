@@ -14,6 +14,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PaypalPaymentGateway extends AbstractPaymentGateway
 {
+    protected function retrievePayment($paymentId, $apiContext)
+    {
+        return PaypalPayment::get($paymentId, $apiContext);
+    }
+
+    protected function executePayment($paypalPayment, $execution, $apiContext)
+    {
+        return $paypalPayment->execute($execution, $apiContext);
+    }
+
     public function initialize(
         PaymentGatewayConfigurationInterface $paymentGatewayConfiguration,
         Transaction $transaction
@@ -56,7 +66,7 @@ class PaypalPaymentGateway extends AbstractPaymentGateway
             $paymentGatewayConfiguration->get('client_secret')
         ));
 
-        $paypalPayment = PaypalPayment::get($request->get('paymentID'), $apiContext);
+        $paypalPayment = $this->retrievePayment($request->get('paymentID'), $apiContext);
 
         $amount = $paypalPayment->getTransactions()[0]->getAmount();
 
@@ -69,7 +79,7 @@ class PaypalPaymentGateway extends AbstractPaymentGateway
         $execution = new PaymentExecution();
         $execution->setPayerId($request->get('payerID'));
 
-        $result = $paypalPayment->execute($execution, $apiContext);
+        $result = $this->executePayment($paypalPayment, $execution, $apiContext);
 
         if ('approved' !== $result->getState()) {
             return $gatewayResponse->setMessage('Transaction unauthorized');

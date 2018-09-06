@@ -41,6 +41,34 @@ class AtosSipsPostPaymentGatewayTest extends PaymentGatewayTestCase
         $this->assertEquals($this->paymentGatewayConfiguration->get('interface_version'), $data['interfaceVersion']);
     }
 
+    public function testBuildHTMLView()
+    {
+        $this->paymentGatewayConfiguration
+            ->set('client_id', 'dummy_client_id')
+            ->set('client_site', 'dummy_client_site')
+            ->set('client_rang', 'dummy_client_rang')
+            ->set('callback_url', 'dummy_callback_url')
+            ->set('return_url', 'dummy_callback_url')
+            ->set('environment', 'dummy_environment')
+            ->set('capture_day', 'dummy_capture_day')
+            ->set('capture_mode', 'dummy_capture_mode')
+            ->set('merchant_id', 'dummy_merchant_id')
+            ->set('version', 'dummy_version')
+            ->set('interface_version', 'dummy_interface_version')
+            ->set('secret', 'dummy_secret')
+        ;
+        $data = $this->gateway->initialize($this->paymentGatewayConfiguration, $this->transaction);
+
+        $htmlView = $this->twig->render('@IDCIPaymentBundle/Resources/views/Gateway/atos_sips_post.html.twig', [
+            'initializationData' => $data,
+        ]);
+
+        $this->assertEquals(
+            $this->gateway->buildHTMLView($this->paymentGatewayConfiguration, $this->transaction),
+            $htmlView
+        );
+    }
+
     /**
      * @expectedException \UnexpectedValueException
      */
@@ -56,6 +84,7 @@ class AtosSipsPostPaymentGatewayTest extends PaymentGatewayTestCase
         $request = Request::create('dummy_uri', Request::METHOD_POST);
 
         $gatewayResponse = $this->gateway->getResponse($request, $this->paymentGatewayConfiguration);
+        $this->assertEquals(PaymentStatus::STATUS_FAILED, $gatewayResponse->getStatus());
         $this->assertEquals('The request do not contains "Data"', $gatewayResponse->getMessage());
     }
 
@@ -70,6 +99,7 @@ class AtosSipsPostPaymentGatewayTest extends PaymentGatewayTestCase
         );
 
         $gatewayResponse = $this->gateway->getResponse($request, $this->paymentGatewayConfiguration);
+        $this->assertEquals(PaymentStatus::STATUS_FAILED, $gatewayResponse->getStatus());
         $this->assertEquals('Seal check failed', $gatewayResponse->getMessage());
     }
 
@@ -121,6 +151,7 @@ class AtosSipsPostPaymentGatewayTest extends PaymentGatewayTestCase
         $request->request->set('Seal', hash('sha256', $data));
 
         $gatewayResponse = $this->gateway->getResponse($request, $this->paymentGatewayConfiguration);
+        $this->assertEquals(PaymentStatus::STATUS_FAILED, $gatewayResponse->getStatus());
         $this->assertEquals('Transaction unauthorized', $gatewayResponse->getMessage());
     }
 
@@ -138,5 +169,17 @@ class AtosSipsPostPaymentGatewayTest extends PaymentGatewayTestCase
 
         $gatewayResponse = $this->gateway->getResponse($request, $this->paymentGatewayConfiguration);
         $this->assertEquals(PaymentStatus::STATUS_APPROVED, $gatewayResponse->getStatus());
+    }
+
+    public function testGetParameterNames()
+    {
+        $parameterNames = AtosSipsPostPaymentGateway::getParameterNames();
+
+        $this->assertContains('version', $parameterNames);
+        $this->assertContains('secret', $parameterNames);
+        $this->assertContains('merchant_id', $parameterNames);
+        $this->assertContains('capture_mode', $parameterNames);
+        $this->assertContains('capture_day', $parameterNames);
+        $this->assertContains('interface_version', $parameterNames);
     }
 }

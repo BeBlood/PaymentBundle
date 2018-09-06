@@ -2,7 +2,7 @@
 
 namespace IDCI\Bundle\PaymentBundle\Gateway;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use IDCI\Bundle\PaymentBundle\Model\GatewayResponse;
 use IDCI\Bundle\PaymentBundle\Model\PaymentGatewayConfigurationInterface;
 use IDCI\Bundle\PaymentBundle\Model\Transaction;
@@ -17,14 +17,21 @@ class PayboxPaymentGateway extends AbstractPaymentGateway
      */
     private $serverHostName;
 
+    /**
+     * @var ClientInterface
+     */
+    private $httpClient;
+
     public function __construct(
         \Twig_Environment $templating,
+        ClientInterface $httpClient,
         string $serverHostName,
         string $keyPath,
         string $publicKeyUrl
     ) {
         parent::__construct($templating);
 
+        $this->httpClient = $httpClient;
         $this->serverHostName = $serverHostName;
         $this->keyPath = $keyPath;
         $this->publicKeyUrl = $publicKeyUrl;
@@ -146,6 +153,10 @@ class PayboxPaymentGateway extends AbstractPaymentGateway
             throw new \UnexpectedValueException('Paybox : Payment Gateway error (Request method should be POST)');
         }
 
+        if (null === $request->get('reference') || null === $request->get('amount')) {
+            throw new \UnexpectedValueException('Paybox : Request error (no "reference" or "amount" fields)');
+        }
+
         $gatewayResponse = (new GatewayResponse())
             ->setDate(new \DateTime())
             ->setStatus(PaymentStatus::STATUS_FAILED)
@@ -159,7 +170,7 @@ class PayboxPaymentGateway extends AbstractPaymentGateway
         }
 
         $publicKey = openssl_pkey_get_public(
-            (new Client())->request('GET', $this->publicKeyUrl)->getBody()
+            $this->httpClient->request('GET', $this->publicKeyUrl)->getBody()
         );
 
         $data = $request->request->all();

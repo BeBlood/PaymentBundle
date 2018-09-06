@@ -2,14 +2,14 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Manager;
 
-use PHPUnit\Framework\TestCase;
-use IDCI\Bundle\PaymentBundle\Manager\PaymentManager;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityRepository;
 use IDCI\Bundle\PaymentBundle\Entity\PaymentGatewayConfiguration;
 use IDCI\Bundle\PaymentBundle\Gateway\PaymentGatewayRegistryInterface;
+use IDCI\Bundle\PaymentBundle\Manager\PaymentManager;
 use IDCI\Bundle\PaymentBundle\Manager\TransactionManagerInterface;
 use IDCI\Bundle\PaymentBundle\Payment\PaymentContext;
-use Doctrine\ORM\EntityRepository;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class PaymentManagerTest extends TestCase
@@ -61,6 +61,11 @@ class PaymentManagerTest extends TestCase
             ->willReturn('dummy_gateway_name')
         ;
 
+        $this->paymentGatewayConfiguration
+            ->method('getAlias')
+            ->willReturn('dummy_gateway_alias')
+        ;
+
         $this->paymentGatewayConfigurationRepository = $this->getMockBuilder(EntityRepository::class)
             ->disableOriginalConstructor()
             ->getMock()
@@ -71,6 +76,13 @@ class PaymentManagerTest extends TestCase
             ->will($this->returnValueMap([
                 [['alias' => 'wrong_payment_gateway_configuration_alias'], null, null],
                 [['alias' => 'dummy_gateway_alias'], null, $this->paymentGatewayConfiguration],
+            ]))
+        ;
+
+        $this->paymentGatewayConfigurationRepository
+            ->method('findAll')
+            ->will($this->returnValue([
+                $this->paymentGatewayConfiguration,
             ]))
         ;
 
@@ -95,6 +107,20 @@ class PaymentManagerTest extends TestCase
             $this->transactionManager,
             $this->dispatcher
         );
+    }
+
+    public function testGetAllPaymentGatewayConfigurationFromDoctrine()
+    {
+        $paymentGatewayConfigurations = $this->paymentManager->getAllPaymentGatewayConfiguration();
+
+        $this->assertEquals(
+            [$this->paymentGatewayConfiguration],
+            $paymentGatewayConfigurations
+        );
+        /*$this->assertEquals(
+            $this->paymentGatewayConfiguration,
+            $paymentGatewayConfigurations[$this->paymentGatewayConfiguration->getAlias()]
+        );*/
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Event\Subscriber;
 
-use PHPUnit\Framework\TestCase;
-use IDCI\Bundle\PaymentBundle\Event\TransactionEvent;
-use IDCI\Bundle\PaymentBundle\Event\Subscriber\LoggerTransactionEventSubscriber;
 use IDCI\Bundle\PaymentBundle\Entity\Transaction;
+use IDCI\Bundle\PaymentBundle\Event\Subscriber\LoggerTransactionEventSubscriber;
+use IDCI\Bundle\PaymentBundle\Event\TransactionEvent;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class LoggerTransactionEventSubscriberTest extends TestCase
@@ -31,6 +31,19 @@ class LoggerTransactionEventSubscriberTest extends TestCase
             ->method('getTransaction')
             ->willReturn($transaction)
         ;
+    }
+
+    public function testGetSubscribedEvents()
+    {
+        $events = LoggerTransactionEventSubscriber::getSubscribedEvents();
+
+        $this->assertEquals(array_keys($events), [
+            TransactionEvent::APPROVED,
+            TransactionEvent::CANCELED,
+            TransactionEvent::CREATED,
+            TransactionEvent::FAILED,
+            TransactionEvent::PENDING,
+        ]);
     }
 
     public function testApproved()

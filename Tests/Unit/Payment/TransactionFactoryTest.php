@@ -2,12 +2,17 @@
 
 namespace IDCI\Bundle\PaymentBundle\Test\Unit\Payment;
 
-use PHPUnit\Framework\TestCase;
-use IDCI\Bundle\PaymentBundle\Payment\TransactionFactory;
 use IDCI\Bundle\PaymentBundle\Model\Transaction;
+use IDCI\Bundle\PaymentBundle\Payment\TransactionFactory;
+use PHPUnit\Framework\TestCase;
 
 class TransactionFactoryTest extends TestCase
 {
+    public function testGetInstance()
+    {
+        $this->assertInstanceOf(TransactionFactory::class, TransactionFactory::getInstance());
+    }
+
     /**
      * @expectedException \Exception
      */
@@ -20,23 +25,6 @@ class TransactionFactoryTest extends TestCase
             'customer_email' => 'dummy_customer_email',
             'amount' => 100,
             'currency_code' => 'wrong_currency_code',
-            'description' => 'Dummy description',
-            'metadatas' => [],
-        ]);
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testCreateWithWrongAmount()
-    {
-        TransactionFactory::getInstance()->create([
-            'gateway_configuration_alias' => 'dummy_gateway_alias',
-            'item_id' => 'dummy_item_id',
-            'customer_id' => 'dummy_customer_id',
-            'customer_email' => 'dummy_customer_email',
-            'amount' => 'wrong_amount',
-            'currency_code' => 'EUR',
             'description' => 'Dummy description',
             'metadatas' => [],
         ]);

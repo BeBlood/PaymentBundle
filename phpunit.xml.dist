@@ -22,7 +22,13 @@
         <whitelist>
             <directory>./</directory>
             <exclude>
+                <directory>IDCIPaymentBundle.php</directory>
+                <directory>./Command</directory>
+                <directory>./Controller/Test</directory>
+                <directory>./DependencyInjection</directory>
+                <directory>./Form</directory>
                 <directory>./Resources</directory>
+                <directory>./Step</directory>
                 <directory>./Tests</directory>
                 <directory>./vendor</directory>
             </exclude>

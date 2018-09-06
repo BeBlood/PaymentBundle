@@ -32,6 +32,7 @@ class StripePaymentGatewayTest extends PaymentGatewayTestCase
             ->set('callback_url', 'dummy_callback_url')
             ->set('return_url', 'dummy_return_url')
             ->set('public_key', 'dummy_public_key')
+            ->set('secret_key', 'dummy_secret_key')
         ;
 
         $data = $this->gateway->initialize($this->paymentGatewayConfiguration, $this->transaction);
@@ -47,6 +48,26 @@ class StripePaymentGatewayTest extends PaymentGatewayTestCase
         $this->assertEquals($proxyUrl, $data['proxyUrl']);
         $this->assertEquals($this->paymentGatewayConfiguration->get('return_url'), $data['returnUrl']);
         $this->assertEquals($this->transaction, $data['transaction']);
+    }
+
+    public function testBuildHTMLView()
+    {
+        $this->paymentGatewayConfiguration
+            ->set('callback_url', 'dummy_callback_url')
+            ->set('return_url', 'dummy_return_url')
+            ->set('public_key', 'dummy_public_key')
+            ->set('secret_key', 'dummy_secret_key')
+        ;
+        $data = $this->gateway->initialize($this->paymentGatewayConfiguration, $this->transaction);
+
+        $htmlView = $this->twig->render('@IDCIPaymentBundle/Resources/views/Gateway/stripe.html.twig', [
+            'initializationData' => $data,
+        ]);
+
+        $this->assertEquals(
+            $this->gateway->buildHTMLView($this->paymentGatewayConfiguration, $this->transaction),
+            $htmlView
+        );
     }
 
     /**
@@ -93,5 +114,13 @@ class StripePaymentGatewayTest extends PaymentGatewayTestCase
 
         $gatewayResponse = $this->gateway->getResponse($request, $this->paymentGatewayConfiguration);
         $this->assertEquals(PaymentStatus::STATUS_APPROVED, $gatewayResponse->getStatus());
+    }
+
+    public function testGetParameterNames()
+    {
+        $parameterNames = StripePaymentGateway::getParameterNames();
+
+        $this->assertContains('public_key', $parameterNames);
+        $this->assertContains('secret_key', $parameterNames);
     }
 }

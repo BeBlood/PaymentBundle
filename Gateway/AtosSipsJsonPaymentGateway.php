@@ -2,7 +2,7 @@
 
 namespace IDCI\Bundle\PaymentBundle\Gateway;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use IDCI\Bundle\PaymentBundle\Exception\UnexpectedAtosSipsResponseCodeException;
 use IDCI\Bundle\PaymentBundle\Gateway\StatusCode\AtosSipsStatusCode;
 use IDCI\Bundle\PaymentBundle\Model\GatewayResponse;
@@ -15,16 +15,23 @@ use Symfony\Component\HttpFoundation\Request;
 class AtosSipsJsonPaymentGateway extends AbstractPaymentGateway
 {
     /**
+     * @var ClientInterface
+     */
+    private $httpClient;
+
+    /**
      * @var string
      */
     private $serverHostName;
 
     public function __construct(
         \Twig_Environment $templating,
+        ClientInterface $httpClient,
         string $serverHostName
     ) {
         parent::__construct($templating);
 
+        $this->httpClient = $httpClient;
         $this->serverHostName = $serverHostName;
     }
 
@@ -74,9 +81,10 @@ class AtosSipsJsonPaymentGateway extends AbstractPaymentGateway
         $options = $this->buildOptions($paymentGatewayConfiguration, $transaction);
         $options['seal'] = $this->buildSeal($options, $paymentGatewayConfiguration->get('secret'));
 
-        $client = new Client(['defaults' => ['verify' => false]]);
-
-        $response = $client->request('POST', $this->getServerUrl(), ['json' => $options]);
+        $response = $this->httpClient->request('POST', $this->getServerUrl(), [
+            'json' => $options,
+            'verify' => false,
+        ]);
 
         $returnParams = json_decode($response->getBody(), true);
 

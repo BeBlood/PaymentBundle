@@ -2,7 +2,7 @@
 
 namespace IDCI\Bundle\PaymentBundle\Controller;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use IDCI\Bundle\PaymentBundle\Manager\PaymentManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -20,9 +20,24 @@ class StripePaymentGatewayController extends Controller
      */
     private $paymentManager;
 
-    public function __construct(PaymentManager $paymentManager)
+    /**
+     * @var ClientInterface
+     */
+    private $httpClient;
+
+    public function __construct(PaymentManager $paymentManager, ClientInterface $httpClient)
     {
         $this->paymentManager = $paymentManager;
+        $this->httpClient = $httpClient;
+    }
+
+    protected function createCharge(Request $request)
+    {
+        return Stripe\Charge::create([
+            'amount' => $request->get('amount'),
+            'currency' => $request->get('currencyCode'),
+            'source' => $request->get('stripeToken'),
+        ]);
     }
 
     /**
@@ -47,11 +62,7 @@ class StripePaymentGatewayController extends Controller
         try {
             Stripe\Stripe::setApiKey($paymentGatewayConfiguration->get('secret_key'));
 
-            $charge = Stripe\Charge::create([
-                'amount' => $request->get('amount'),
-                'currency' => $request->get('currencyCode'),
-                'source' => $request->get('stripeToken'),
-            ]);
+            $charge = $this->createCharge($request);
 
             $data['raw'] = $charge->__toArray();
         } catch (Stripe\Error\Base $e) {
@@ -59,9 +70,7 @@ class StripePaymentGatewayController extends Controller
         }
 
         try {
-            $client = new Client();
-
-            $response = $client->post($request->get('callbackUrl'), [
+            $response = $this->httpClient->post($request->get('callbackUrl'), [
                 'form_params' => $data,
             ]);
         } catch (\Exception $e) {

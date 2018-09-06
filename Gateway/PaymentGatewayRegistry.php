@@ -2,8 +2,6 @@
 
 namespace IDCI\Bundle\PaymentBundle\Gateway;
 
-use IDCI\Bundle\PaymentBundle\Exception\UnexpectedPaymentGatewayException;
-
 class PaymentGatewayRegistry implements PaymentGatewayRegistryInterface
 {
     /**
@@ -13,7 +11,7 @@ class PaymentGatewayRegistry implements PaymentGatewayRegistryInterface
 
     public function has(string $alias): bool
     {
-        return isset($this->paymentGateways['alias']);
+        return isset($this->paymentGateways[$alias]);
     }
 
     public function set(string $alias, PaymentGatewayInterface $paymentGateway): PaymentGatewayRegistryInterface
@@ -25,10 +23,6 @@ class PaymentGatewayRegistry implements PaymentGatewayRegistryInterface
 
     public function get(string $alias): PaymentGatewayInterface
     {
-        if (!is_string($alias)) {
-            throw new UnexpectedPaymentGatewayException($alias, 'string');
-        }
-
         if (!isset($this->paymentGateways[$alias])) {
             throw new \InvalidArgumentException(sprintf('could not load payment gateway %s', $alias));
         }
@@ -38,6 +32,10 @@ class PaymentGatewayRegistry implements PaymentGatewayRegistryInterface
 
     public function getAll(): array
     {
+        if (null === $this->paymentGateways) {
+            $this->paymentGateways = [];
+        }
+
         return $this->paymentGateways;
     }
 }
