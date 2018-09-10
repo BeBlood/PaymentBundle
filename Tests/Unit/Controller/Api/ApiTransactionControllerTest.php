@@ -3,7 +3,7 @@
 namespace IDCI\Bundle\PaymentBundle\Tests\Controller\Api;
 
 use IDCI\Bundle\PaymentBundle\Controller\Api\ApiTransactionController;
-use IDCI\Bundle\PaymentBundle\Exception\UndefinedTransactionException;
+use IDCI\Bundle\PaymentBundle\Exception\NoTransactionFoundException;
 use IDCI\Bundle\PaymentBundle\Manager\TransactionManagerInterface;
 use IDCI\Bundle\PaymentBundle\Payment\TransactionFactory;
 use PHPUnit\Framework\TestCase;
@@ -44,14 +44,14 @@ class PaymentGatewayControllerTest extends TestCase
     public function buildBehavior($id)
     {
         if ('wrong_transaction_id' === $id) {
-            throw new UndefinedTransactionException();
+            throw new NoTransactionFoundException($id);
         }
 
         return $this->transaction;
     }
 
     /**
-     * @expectedException \IDCI\Bundle\PaymentBundle\Exception\UndefinedTransactionException
+     * @expectedException \IDCI\Bundle\PaymentBundle\Exception\NoTransactionFoundException
      */
     public function testShowUndefinedTransaction()
     {

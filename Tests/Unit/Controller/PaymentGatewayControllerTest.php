@@ -2,7 +2,6 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Controller;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use IDCI\Bundle\PaymentBundle\Controller\PaymentGatewayController;
 use IDCI\Bundle\PaymentBundle\Entity\Transaction;
 use IDCI\Bundle\PaymentBundle\Manager\PaymentManager;
@@ -19,11 +18,6 @@ class PaymentGatewayControllerTest extends TestCase
 {
     public function setUp()
     {
-        $this->om = $this->getMockBuilder(ObjectManager::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-
         $this->transaction = $this->getMockBuilder(Transaction::class)
             ->disableOriginalConstructor()
             ->getMock()
@@ -59,7 +53,6 @@ class PaymentGatewayControllerTest extends TestCase
         ;
 
         $this->paymentGatewayController = new PaymentGatewayController(
-            $this->om,
             $this->paymentManager
         );
 

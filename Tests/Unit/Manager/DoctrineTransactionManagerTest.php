@@ -2,11 +2,11 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Manager;
 
-use PHPUnit\Framework\TestCase;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityRepository;
 use IDCI\Bundle\PaymentBundle\Entity\Transaction;
 use IDCI\Bundle\PaymentBundle\Manager\DoctrineTransactionManager;
-use Doctrine\ORM\EntityRepository;
+use PHPUnit\Framework\TestCase;
 
 class DoctrineTransactionTest extends TestCase
 {
@@ -57,9 +57,31 @@ class DoctrineTransactionTest extends TestCase
             ->willReturn($this->transactionRepository)
         ;
 
-        $this->doctrineTransactionManager = new DoctrineTransactionManager(
-            $this->om
-        );
+        $this->om
+            ->expects($this->once())
+            ->method('persist')
+        ;
+        $this->om
+            ->expects($this->once())
+            ->method('flush')
+        ;
+
+        $this->doctrineTransactionManager = new DoctrineTransactionManager($this->om);
+    }
+
+    public function testSave()
+    {
+        $this->doctrineTransactionEventSubscriber = new DoctrineTransactionManager($this->om);
+
+        $this->om
+            ->expects($this->once())
+            ->method('persist')
+        ;
+        $this->om
+            ->expects($this->once())
+            ->method('flush')
+        ;
+        $this->doctrineTransactionEventSubscriber->saveTransaction($this->transaction);
     }
 
     /**

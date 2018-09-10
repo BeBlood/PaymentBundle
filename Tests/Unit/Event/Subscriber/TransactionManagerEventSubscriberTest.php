@@ -4,11 +4,12 @@ namespace IDCI\Bundle\PaymentBundle\Tests\Event\Subscriber;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use IDCI\Bundle\PaymentBundle\Entity\Transaction;
-use IDCI\Bundle\PaymentBundle\Event\Subscriber\DoctrineTransactionEventSubscriber;
+use IDCI\Bundle\PaymentBundle\Event\Subscriber\TransactionManagerEventSubscriber;
 use IDCI\Bundle\PaymentBundle\Event\TransactionEvent;
+use IDCI\Bundle\PaymentBundle\Manager\DoctrineTransactionManager;
 use PHPUnit\Framework\TestCase;
 
-class DoctrineTransactionEventSubscriberTest extends TestCase
+class TransactionManagerEventSubscriberTest extends TestCase
 {
     /**
      * @var ObjectManager
@@ -17,7 +18,7 @@ class DoctrineTransactionEventSubscriberTest extends TestCase
 
     public function setUp()
     {
-        $this->om = $this->getMockBuilder(ObjectManager::class)
+        $this->transactionManager = $this->getMockBuilder(DoctrineTransactionManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
@@ -40,7 +41,7 @@ class DoctrineTransactionEventSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents()
     {
-        $events = DoctrineTransactionEventSubscriber::getSubscribedEvents();
+        $events = TransactionManagerEventSubscriber::getSubscribedEvents();
 
         $this->assertEquals(array_keys($events), [
             TransactionEvent::APPROVED,
@@ -53,41 +54,8 @@ class DoctrineTransactionEventSubscriberTest extends TestCase
 
     public function testSave()
     {
-        $this->doctrineTransactionEventSubscriber = new DoctrineTransactionEventSubscriber(
-            $this->om,
-            true
-        );
+        $this->transactionManagerEventSubscriber = new TransactionManagerEventSubscriber($this->transactionManager);
 
-        $this->om
-            ->expects($this->once())
-            ->method('persist')
-        ;
-
-        $this->om
-            ->expects($this->once())
-            ->method('flush')
-        ;
-
-        $this->doctrineTransactionEventSubscriber->save($this->transactionEvent);
-    }
-
-    public function testNotSave()
-    {
-        $this->doctrineTransactionEventSubscriber = new DoctrineTransactionEventSubscriber(
-            $this->om,
-            false
-        );
-
-        $this->om
-            ->expects($this->never())
-            ->method('persist')
-        ;
-
-        $this->om
-            ->expects($this->never())
-            ->method('flush')
-        ;
-
-        $this->doctrineTransactionEventSubscriber->save($this->transactionEvent);
+        $this->transactionManagerEventSubscriber->save($this->transactionEvent);
     }
 }

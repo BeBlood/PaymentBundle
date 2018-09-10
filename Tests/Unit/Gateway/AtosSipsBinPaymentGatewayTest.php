@@ -31,7 +31,7 @@ class AtosSipsBinPaymentGatewayTest extends PaymentGatewayTestCase
     }
 
     /**
-     * @expectedException \IDCI\Bundle\PaymentBundle\Exception\InvalidAtosSipsInitializationException
+     * @expectedException \UnexpectedValueException
      */
     public function testEmptyDataProcessResponseOnInitialize()
     {
@@ -46,7 +46,7 @@ class AtosSipsBinPaymentGatewayTest extends PaymentGatewayTestCase
     }
 
     /**
-     * @expectedException \IDCI\Bundle\PaymentBundle\Exception\InvalidAtosSipsInitializationException
+     * @expectedException \UnexpectedValueException
      */
     public function testErrorDataProcessResponseOnInitialize()
     {
@@ -80,7 +80,7 @@ class AtosSipsBinPaymentGatewayTest extends PaymentGatewayTestCase
     }
 
     /**
-     * @expectedException \IDCI\Bundle\PaymentBundle\Exception\InvalidPaymentCallbackMethodException
+     * @expectedException \UnexpectedValueException
      */
     public function testInvalidMethodGatewayResponse()
     {

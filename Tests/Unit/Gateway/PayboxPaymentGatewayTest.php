@@ -2,11 +2,8 @@
 
 namespace IDCI\Bundle\PaymentBundle\Tests\Unit\Gateway;
 
-<<<<<<< HEAD
-=======
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
->>>>>>> Update: Tests
 use IDCI\Bundle\PaymentBundle\Gateway\PayboxPaymentGateway;
 use IDCI\Bundle\PaymentBundle\Payment\PaymentStatus;
 use Symfony\Component\Filesystem\Filesystem;

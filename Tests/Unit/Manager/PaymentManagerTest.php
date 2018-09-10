@@ -101,26 +101,33 @@ class PaymentManagerTest extends TestCase
             ->willReturn($this->paymentGatewayConfigurationRepository)
         ;
 
+        $this->paymentCategayConfigurations = [
+            'dummy_gateway_alias' => [
+                'gateway_name' => 'paypal',
+                'enabled' => true,
+                'parameters' => [
+                    'client_id' => 'dummy_client_id',
+                ],
+            ],
+        ];
+
         $this->paymentManager = new PaymentManager(
             $this->om,
             $this->paymentGatewayRegistry,
             $this->transactionManager,
-            $this->dispatcher
+            $this->dispatcher,
+            $this->paymentCategayConfigurations = []
         );
     }
 
     public function testGetAllPaymentGatewayConfigurationFromDoctrine()
     {
-        $paymentGatewayConfigurations = $this->paymentManager->getAllPaymentGatewayConfiguration();
+        $paymentGatewayConfigurations = $this->paymentManager->getAllPaymentGatewayConfigurationFromDoctrine();
 
         $this->assertEquals(
-            [$this->paymentGatewayConfiguration],
-            $paymentGatewayConfigurations
-        );
-        /*$this->assertEquals(
             $this->paymentGatewayConfiguration,
             $paymentGatewayConfigurations[$this->paymentGatewayConfiguration->getAlias()]
-        );*/
+        );
     }
 
     /**
