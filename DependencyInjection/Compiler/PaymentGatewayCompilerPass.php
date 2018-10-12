@@ -25,7 +25,7 @@ class PaymentGatewayCompilerPass implements CompilerPassInterface
 
         $registryDefinition = $container->getDefinition(PaymentGatewayRegistry::class);
 
-        $taggedServices = $container->findTaggedServiceIds('idci_payment.gateways');
+        $taggedServices = $container->findTaggedServiceIds('idci_payment.gateway');
         foreach ($taggedServices as $id => $tags) {
             foreach ($tags as $attributes) {
                 $registryDefinition->addMethodCall(
